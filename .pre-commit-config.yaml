@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      -id: update-environment-yml
+      name: Updates the environment_droplet.yml from conda
+      entry: bash scripts/update_environment_yml.sh
+      language: system
+      pass_filenames: false
+      stages: [pre-commit]
