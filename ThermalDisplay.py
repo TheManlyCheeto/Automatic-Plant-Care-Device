@@ -8,9 +8,9 @@ import busio
 import adafruit_mlx90640
 
 ROWS, COLS = 24, 32
-UPSCALE = 10          # 24x32 → 240x320 (looks like a camera)
-VMIN = 20             # °C lower bound (adjust)
-VMAX = 35             # °C upper bound (adjust)
+UPSCALE = 10          # 24x32 → 240x320 
+VMIN = 20             #°C lower bound (adjust)
+VMAX = 35              #°C upper bound (adjust)
 
 i2c = busio.I2C(board.SCL, board.SDA, frequency=800000)
 mlx = adafruit_mlx90640.MLX90640(i2c)
@@ -24,7 +24,7 @@ fig.canvas.manager.set_window_title("MLXHeatCam")
 
 img = ax.imshow(
     np.zeros((ROWS*UPSCALE, COLS*UPSCALE)),
-    cmap="plasma",      # this matches your example closely
+    cmap="plasma",      
     vmin=VMIN,
     vmax=VMAX
 )
@@ -39,7 +39,7 @@ while True:
 
         data = np.array(frame).reshape((ROWS, COLS))
 
-        # Flip vertically so it feels camera-like
+       
         data = np.flipud(data)
 
         # Smooth upscale
