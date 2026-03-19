@@ -1,0 +1,13 @@
+{
+  "name": "basil_1",
+  "soil_min": 350,
+  "soil_max": 800,
+  "humidity_min": 40,
+  "humidity_max": 70,
+  "temp_min_c": 20,
+  "temp_max_c": 30,
+  "watering_cooldown_hours": 6,
+  "pump_seconds": 2.0,
+  "soil_channel": 0,
+  "air_channel": 4
+}
