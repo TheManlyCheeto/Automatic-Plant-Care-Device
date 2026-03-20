@@ -1316,16 +1316,48 @@
       }
     },
     "14:53": {
+      "count": 3,
+      "avg_soil_moisture": 384.33,
+      "min_soil_moisture": 384,
+      "max_soil_moisture": 385,
+      "avg_humidity": 8.27,
+      "min_humidity": 8.15,
+      "max_humidity": 8.44,
+      "avg_temperature_c": 24.05,
+      "min_temperature_c": 24.02,
+      "max_temperature_c": 24.07,
+      "watering_recommended_count": 0,
+      "alerts_count": {
+        "Humidity is too low": 3
+      }
+    },
+    "14:54": {
+      "count": 3,
+      "avg_soil_moisture": 384.33,
+      "min_soil_moisture": 384,
+      "max_soil_moisture": 385,
+      "avg_humidity": 8.57,
+      "min_humidity": 8.43,
+      "max_humidity": 8.69,
+      "avg_temperature_c": 24.12,
+      "min_temperature_c": 24.11,
+      "max_temperature_c": 24.14,
+      "watering_recommended_count": 0,
+      "alerts_count": {
+        "Humidity is too low": 3
+      }
+    },
+    "14:55": {
       "count": 1,
       "avg_soil_moisture": 385.0,
       "min_soil_moisture": 385,
       "max_soil_moisture": 385,
-      "avg_humidity": 8.15,
-      "min_humidity": 8.15,
-      "max_humidity": 8.15,
-      "avg_temperature_c": 24.02,
-      "min_temperature_c": 24.02,
-      "max_temperature_c": 24.02,
+      "avg_humidity": 8.75,
+      "min_humidity": 8.75,
+      "max_humidity": 8.75,
+      "avg_temperature_c": 24.15,
+      "min_temperature_c": 24.15,
+      "max_temperature_c": 24.15,
       "watering_recommended_count": 0,
       "alerts_count": {
         "Humidity is too low": 1
@@ -1350,19 +1382,19 @@
       }
     },
     "14": {
-      "count": 156,
-      "avg_soil_moisture": 383.18,
+      "count": 162,
+      "avg_soil_moisture": 383.22,
       "min_soil_moisture": 373,
       "max_soil_moisture": 385,
-      "avg_humidity": 7.75,
+      "avg_humidity": 7.78,
       "min_humidity": 7.21,
-      "max_humidity": 8.19,
-      "avg_temperature_c": 24.03,
+      "max_humidity": 8.75,
+      "avg_temperature_c": 24.04,
       "min_temperature_c": 23.89,
       "max_temperature_c": 24.19,
       "watering_recommended_count": 0,
       "alerts_count": {
-        "Humidity is too low": 156
+        "Humidity is too low": 162
       }
     }
   }
