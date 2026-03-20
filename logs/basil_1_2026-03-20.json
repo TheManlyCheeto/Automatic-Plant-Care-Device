@@ -1,0 +1,858 @@
+{
+  "plant": "basil_1",
+  "date": "2026-03-20",
+  "minute_summary": {
+    "11:50": {
+      "count": 3,
+      "avg_soil_moisture": 335.33,
+      "min_soil_moisture": 332,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.48,
+      "min_humidity": 11.32,
+      "max_humidity": 11.67,
+      "avg_temperature_c": 24.49,
+      "min_temperature_c": 24.49,
+      "max_temperature_c": 24.5,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "11:51": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.49,
+      "min_humidity": 11.4,
+      "max_humidity": 11.6,
+      "avg_temperature_c": 24.55,
+      "min_temperature_c": 24.51,
+      "max_temperature_c": 24.58,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "11:52": {
+      "count": 2,
+      "avg_soil_moisture": 336.0,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 336,
+      "avg_humidity": 11.26,
+      "min_humidity": 11.25,
+      "max_humidity": 11.26,
+      "avg_temperature_c": 24.46,
+      "min_temperature_c": 24.43,
+      "max_temperature_c": 24.48,
+      "watering_recommended_count": 2,
+      "alerts_count": {
+        "Soil is too dry": 2,
+        "Humidity is too low": 2
+      }
+    },
+    "11:53": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.29,
+      "min_humidity": 11.28,
+      "max_humidity": 11.29,
+      "avg_temperature_c": 24.47,
+      "min_temperature_c": 24.44,
+      "max_temperature_c": 24.5,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "11:54": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.37,
+      "min_humidity": 11.32,
+      "max_humidity": 11.46,
+      "avg_temperature_c": 24.56,
+      "min_temperature_c": 24.51,
+      "max_temperature_c": 24.61,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "11:55": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.42,
+      "min_humidity": 11.41,
+      "max_humidity": 11.44,
+      "avg_temperature_c": 24.7,
+      "min_temperature_c": 24.65,
+      "max_temperature_c": 24.74,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "11:56": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.19,
+      "min_humidity": 11.16,
+      "max_humidity": 11.25,
+      "avg_temperature_c": 24.65,
+      "min_temperature_c": 24.56,
+      "max_temperature_c": 24.74,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "11:57": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.19,
+      "min_humidity": 11.16,
+      "max_humidity": 11.22,
+      "avg_temperature_c": 24.46,
+      "min_temperature_c": 24.44,
+      "max_temperature_c": 24.48,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "11:58": {
+      "count": 3,
+      "avg_soil_moisture": 336.33,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.19,
+      "min_humidity": 11.18,
+      "max_humidity": 11.2,
+      "avg_temperature_c": 24.37,
+      "min_temperature_c": 24.33,
+      "max_temperature_c": 24.42,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "11:59": {
+      "count": 3,
+      "avg_soil_moisture": 336.33,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.26,
+      "min_humidity": 11.18,
+      "max_humidity": 11.31,
+      "avg_temperature_c": 24.32,
+      "min_temperature_c": 24.3,
+      "max_temperature_c": 24.34,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:00": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.28,
+      "min_humidity": 11.24,
+      "max_humidity": 11.31,
+      "avg_temperature_c": 24.42,
+      "min_temperature_c": 24.4,
+      "max_temperature_c": 24.43,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:01": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.18,
+      "min_humidity": 11.16,
+      "max_humidity": 11.21,
+      "avg_temperature_c": 24.38,
+      "min_temperature_c": 24.35,
+      "max_temperature_c": 24.42,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:02": {
+      "count": 3,
+      "avg_soil_moisture": 336.33,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.06,
+      "min_humidity": 11.05,
+      "max_humidity": 11.07,
+      "avg_temperature_c": 24.27,
+      "min_temperature_c": 24.18,
+      "max_temperature_c": 24.33,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:03": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.17,
+      "min_humidity": 11.11,
+      "max_humidity": 11.22,
+      "avg_temperature_c": 24.13,
+      "min_temperature_c": 24.09,
+      "max_temperature_c": 24.18,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:04": {
+      "count": 3,
+      "avg_soil_moisture": 337.0,
+      "min_soil_moisture": 337,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.14,
+      "min_humidity": 11.11,
+      "max_humidity": 11.15,
+      "avg_temperature_c": 24.01,
+      "min_temperature_c": 23.97,
+      "max_temperature_c": 24.03,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:05": {
+      "count": 3,
+      "avg_soil_moisture": 336.33,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.2,
+      "min_humidity": 11.14,
+      "max_humidity": 11.23,
+      "avg_temperature_c": 24.03,
+      "min_temperature_c": 23.99,
+      "max_temperature_c": 24.09,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:06": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.22,
+      "min_humidity": 11.2,
+      "max_humidity": 11.24,
+      "avg_temperature_c": 24.22,
+      "min_temperature_c": 24.15,
+      "max_temperature_c": 24.3,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:07": {
+      "count": 3,
+      "avg_soil_moisture": 337.0,
+      "min_soil_moisture": 337,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.15,
+      "min_humidity": 11.1,
+      "max_humidity": 11.17,
+      "avg_temperature_c": 24.4,
+      "min_temperature_c": 24.35,
+      "max_temperature_c": 24.43,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:08": {
+      "count": 3,
+      "avg_soil_moisture": 336.33,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.12,
+      "min_humidity": 11.1,
+      "max_humidity": 11.14,
+      "avg_temperature_c": 24.47,
+      "min_temperature_c": 24.44,
+      "max_temperature_c": 24.49,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:09": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.35,
+      "min_humidity": 11.19,
+      "max_humidity": 11.5,
+      "avg_temperature_c": 24.54,
+      "min_temperature_c": 24.51,
+      "max_temperature_c": 24.59,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:10": {
+      "count": 3,
+      "avg_soil_moisture": 336.33,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.44,
+      "min_humidity": 11.43,
+      "max_humidity": 11.47,
+      "avg_temperature_c": 24.66,
+      "min_temperature_c": 24.62,
+      "max_temperature_c": 24.69,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:11": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.34,
+      "min_humidity": 11.32,
+      "max_humidity": 11.37,
+      "avg_temperature_c": 24.73,
+      "min_temperature_c": 24.7,
+      "max_temperature_c": 24.76,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:12": {
+      "count": 3,
+      "avg_soil_moisture": 336.33,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.43,
+      "min_humidity": 11.39,
+      "max_humidity": 11.49,
+      "avg_temperature_c": 24.84,
+      "min_temperature_c": 24.8,
+      "max_temperature_c": 24.86,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:13": {
+      "count": 3,
+      "avg_soil_moisture": 336.33,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.33,
+      "min_humidity": 11.29,
+      "max_humidity": 11.39,
+      "avg_temperature_c": 24.89,
+      "min_temperature_c": 24.88,
+      "max_temperature_c": 24.9,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:14": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.39,
+      "min_humidity": 11.35,
+      "max_humidity": 11.42,
+      "avg_temperature_c": 24.89,
+      "min_temperature_c": 24.86,
+      "max_temperature_c": 24.93,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:15": {
+      "count": 3,
+      "avg_soil_moisture": 337.0,
+      "min_soil_moisture": 337,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.26,
+      "min_humidity": 11.2,
+      "max_humidity": 11.32,
+      "avg_temperature_c": 24.96,
+      "min_temperature_c": 24.95,
+      "max_temperature_c": 24.99,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:16": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.13,
+      "min_humidity": 11.11,
+      "max_humidity": 11.15,
+      "avg_temperature_c": 24.89,
+      "min_temperature_c": 24.87,
+      "max_temperature_c": 24.9,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:17": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.28,
+      "min_humidity": 11.24,
+      "max_humidity": 11.34,
+      "avg_temperature_c": 24.9,
+      "min_temperature_c": 24.88,
+      "max_temperature_c": 24.91,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:18": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.98,
+      "min_humidity": 10.95,
+      "max_humidity": 11.02,
+      "avg_temperature_c": 24.79,
+      "min_temperature_c": 24.75,
+      "max_temperature_c": 24.82,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:19": {
+      "count": 3,
+      "avg_soil_moisture": 336.0,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 336,
+      "avg_humidity": 10.93,
+      "min_humidity": 10.9,
+      "max_humidity": 10.99,
+      "avg_temperature_c": 24.66,
+      "min_temperature_c": 24.64,
+      "max_temperature_c": 24.7,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:20": {
+      "count": 3,
+      "avg_soil_moisture": 337.0,
+      "min_soil_moisture": 337,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.97,
+      "min_humidity": 10.94,
+      "max_humidity": 10.99,
+      "avg_temperature_c": 24.64,
+      "min_temperature_c": 24.63,
+      "max_temperature_c": 24.64,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:21": {
+      "count": 3,
+      "avg_soil_moisture": 336.0,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 336,
+      "avg_humidity": 10.96,
+      "min_humidity": 10.95,
+      "max_humidity": 10.98,
+      "avg_temperature_c": 24.66,
+      "min_temperature_c": 24.64,
+      "max_temperature_c": 24.68,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:22": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.88,
+      "min_humidity": 10.85,
+      "max_humidity": 10.9,
+      "avg_temperature_c": 24.6,
+      "min_temperature_c": 24.56,
+      "max_temperature_c": 24.65,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:23": {
+      "count": 3,
+      "avg_soil_moisture": 336.33,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.79,
+      "min_humidity": 10.76,
+      "max_humidity": 10.84,
+      "avg_temperature_c": 24.53,
+      "min_temperature_c": 24.49,
+      "max_temperature_c": 24.57,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:24": {
+      "count": 3,
+      "avg_soil_moisture": 336.33,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.77,
+      "min_humidity": 10.73,
+      "max_humidity": 10.83,
+      "avg_temperature_c": 24.43,
+      "min_temperature_c": 24.41,
+      "max_temperature_c": 24.47,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:25": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.74,
+      "min_humidity": 10.72,
+      "max_humidity": 10.76,
+      "avg_temperature_c": 24.38,
+      "min_temperature_c": 24.35,
+      "max_temperature_c": 24.41,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:26": {
+      "count": 3,
+      "avg_soil_moisture": 336.33,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.79,
+      "min_humidity": 10.72,
+      "max_humidity": 10.84,
+      "avg_temperature_c": 24.42,
+      "min_temperature_c": 24.39,
+      "max_temperature_c": 24.46,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:27": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.82,
+      "min_humidity": 10.81,
+      "max_humidity": 10.83,
+      "avg_temperature_c": 24.5,
+      "min_temperature_c": 24.48,
+      "max_temperature_c": 24.52,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:28": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.77,
+      "min_humidity": 10.76,
+      "max_humidity": 10.78,
+      "avg_temperature_c": 24.57,
+      "min_temperature_c": 24.55,
+      "max_temperature_c": 24.59,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:29": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.82,
+      "min_humidity": 10.73,
+      "max_humidity": 10.87,
+      "avg_temperature_c": 24.59,
+      "min_temperature_c": 24.57,
+      "max_temperature_c": 24.61,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:30": {
+      "count": 3,
+      "avg_soil_moisture": 336.33,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.79,
+      "min_humidity": 10.76,
+      "max_humidity": 10.81,
+      "avg_temperature_c": 24.61,
+      "min_temperature_c": 24.6,
+      "max_temperature_c": 24.61,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:31": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.83,
+      "min_humidity": 10.8,
+      "max_humidity": 10.85,
+      "avg_temperature_c": 24.61,
+      "min_temperature_c": 24.59,
+      "max_temperature_c": 24.62,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:32": {
+      "count": 3,
+      "avg_soil_moisture": 336.33,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.76,
+      "min_humidity": 10.72,
+      "max_humidity": 10.79,
+      "avg_temperature_c": 24.61,
+      "min_temperature_c": 24.59,
+      "max_temperature_c": 24.63,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:33": {
+      "count": 3,
+      "avg_soil_moisture": 336.67,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.77,
+      "min_humidity": 10.68,
+      "max_humidity": 10.84,
+      "avg_temperature_c": 24.47,
+      "min_temperature_c": 24.4,
+      "max_temperature_c": 24.52,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:34": {
+      "count": 3,
+      "avg_soil_moisture": 336.33,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.61,
+      "min_humidity": 10.58,
+      "max_humidity": 10.65,
+      "avg_temperature_c": 24.28,
+      "min_temperature_c": 24.23,
+      "max_temperature_c": 24.33,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:35": {
+      "count": 3,
+      "avg_soil_moisture": 336.33,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.71,
+      "min_humidity": 10.67,
+      "max_humidity": 10.76,
+      "avg_temperature_c": 24.27,
+      "min_temperature_c": 24.25,
+      "max_temperature_c": 24.29,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:36": {
+      "count": 3,
+      "avg_soil_moisture": 336.33,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.85,
+      "min_humidity": 10.81,
+      "max_humidity": 10.89,
+      "avg_temperature_c": 24.4,
+      "min_temperature_c": 24.34,
+      "max_temperature_c": 24.46,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    },
+    "12:37": {
+      "count": 3,
+      "avg_soil_moisture": 336.33,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 10.72,
+      "min_humidity": 10.69,
+      "max_humidity": 10.79,
+      "avg_temperature_c": 24.48,
+      "min_temperature_c": 24.47,
+      "max_temperature_c": 24.48,
+      "watering_recommended_count": 3,
+      "alerts_count": {
+        "Soil is too dry": 3,
+        "Humidity is too low": 3
+      }
+    }
+  },
+  "hour_summary": {
+    "11": {
+      "count": 29,
+      "avg_soil_moisture": 336.41,
+      "min_soil_moisture": 332,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.32,
+      "min_humidity": 11.16,
+      "max_humidity": 11.67,
+      "avg_temperature_c": 24.5,
+      "min_temperature_c": 24.3,
+      "max_temperature_c": 24.74,
+      "watering_recommended_count": 29,
+      "alerts_count": {
+        "Soil is too dry": 29,
+        "Humidity is too low": 29
+      }
+    },
+    "12": {
+      "count": 114,
+      "avg_soil_moisture": 336.54,
+      "min_soil_moisture": 336,
+      "max_soil_moisture": 337,
+      "avg_humidity": 11.02,
+      "min_humidity": 10.58,
+      "max_humidity": 11.5,
+      "avg_temperature_c": 24.53,
+      "min_temperature_c": 23.97,
+      "max_temperature_c": 24.99,
+      "watering_recommended_count": 114,
+      "alerts_count": {
+        "Soil is too dry": 114,
+        "Humidity is too low": 114
+      }
+    }
+  }
+}

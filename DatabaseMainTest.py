@@ -9,6 +9,14 @@ import adafruit_ahtx0
 from adafruit_seesaw.seesaw import Seesaw
 
 
+PLOTS = [
+    {"plot_id": 1, "soil_channel": 0, "air_channel": 4},
+    {"plot_id": 2, "soil_channel": 1, "air_channel": 5},
+    {"plot_id": 3, "soil_channel": 2, "air_channel": 6},
+    {"plot_id": 4, "soil_channel": 3, "air_channel": 7},
+]
+
+
 class PlantController:
     def __init__(self, plant_file):
         with open(plant_file, "r", encoding="utf-8") as f:
@@ -21,7 +29,7 @@ class PlantController:
             return high_msg
         return None
 
-    def check_plant(self, soil_moisture, humidity, temperature_c):
+    def check_plant(self, plot_id, soil_moisture, humidity, temperature_c):
         checks = [
             {
                 "name": "soil",
@@ -69,14 +77,15 @@ class PlantController:
 
         if watering_recommended:
             recommendation = (
-                f"Watering recommended. Suggested pump time: "
-                f"{self.plant['pump_seconds']} seconds"
+                f"Watering recommended for plot {plot_id}. "
+                f"Suggested pump time: {self.plant['pump_seconds']} seconds"
             )
         else:
-            recommendation = "No watering recommended at this time"
+            recommendation = f"No watering recommended for plot {plot_id} at this time"
 
         return {
             "plant": self.plant["name"],
+            "plot_id": plot_id,
             "soil_moisture": soil_moisture,
             "humidity": humidity,
             "temperature_c": temperature_c,
@@ -87,8 +96,9 @@ class PlantController:
 
 
 class SummaryLogger:
-    def __init__(self, plant_name, log_folder="logs", reset_today_on_start=False):
+    def __init__(self, plant_name, plot_id, log_folder="logs", reset_today_on_start=False):
         self.plant_name = plant_name
+        self.plot_id = plot_id
         self.log_folder = log_folder
         os.makedirs(self.log_folder, exist_ok=True)
 
@@ -164,7 +174,10 @@ class SummaryLogger:
         }
 
     def _get_file_path(self, date_str):
-        return os.path.join(self.log_folder, f"{self.plant_name}_{date_str}.json")
+        return os.path.join(
+            self.log_folder,
+            f"{self.plant_name}_plot{self.plot_id}_{date_str}.json"
+        )
 
     def _load_day_file(self, date_str):
         file_path = self._get_file_path(date_str)
@@ -175,6 +188,7 @@ class SummaryLogger:
 
         data = {
             "plant": self.plant_name,
+            "plot_id": self.plot_id,
             "date": date_str,
             "minute_summary": {},
             "hour_summary": {}
@@ -239,6 +253,7 @@ class SummaryLogger:
             self.minute_bucket = self._new_bucket()
 
         self._update_bucket(self.minute_bucket, result)
+        self._write_current_minute()
 
     def _write_current_minute(self):
         if self.minute_bucket is None or self.minute_bucket["count"] == 0:
@@ -253,23 +268,6 @@ class SummaryLogger:
 
     def close(self):
         self._write_current_minute()
-
-
-def load_plant_controllers(plants_folder="plants"):
-    controllers = []
-
-    if not os.path.exists(plants_folder):
-        raise FileNotFoundError(f"Plants folder '{plants_folder}' does not exist.")
-
-    for filename in os.listdir(plants_folder):
-        if filename.endswith(".json"):
-            filepath = os.path.join(plants_folder, filename)
-            controllers.append(PlantController(filepath))
-
-    if not controllers:
-        raise ValueError(f"No plant JSON files found in '{plants_folder}'.")
-
-    return controllers
 
 
 def setup_sensors():
@@ -293,12 +291,9 @@ def setup_sensors():
     return soil_sensors, air_sensors
 
 
-def read_plant_sensors(plant, soil_sensors, air_sensors):
-    soil_channel = plant["soil_channel"]
-    air_channel = plant["air_channel"]
-
-    soil_sensor = soil_sensors[soil_channel]
-    air_sensor = air_sensors[air_channel]
+def read_plot_sensors(plot, soil_sensors, air_sensors):
+    soil_sensor = soil_sensors[plot["soil_channel"]]
+    air_sensor = air_sensors[plot["air_channel"]]
 
     soil_moisture = soil_sensor.moisture_read()
     humidity = air_sensor.relative_humidity
@@ -308,26 +303,22 @@ def read_plant_sensors(plant, soil_sensors, air_sensors):
 
 
 if __name__ == "__main__":
-    controllers = load_plant_controllers("plants")
+    print("RUNNING:", __file__)
+
+    controller = PlantController("plants/basil.json")
+    soil_sensors, air_sensors = setup_sensors()
 
     loggers = {
-        controller.plant["name"]: SummaryLogger(
-            controller.plant["name"],
-            "logs",
+        plot["plot_id"]: SummaryLogger(
+            plant_name=controller.plant["name"],
+            plot_id=plot["plot_id"],
+            log_folder="logs",
             reset_today_on_start=True
         )
-        for controller in controllers
+        for plot in PLOTS
     }
 
-    soil_sensors, air_sensors = setup_sensors()
     sample_interval_seconds = 20
-
-    print(f"Loaded {len(controllers)} plant(s)")
-    for controller in controllers:
-        print(
-            f" - {controller.plant['name']} "
-            f"(soil {controller.plant['soil_channel']}, air {controller.plant['air_channel']})"
-        )
 
     try:
         while True:
@@ -335,16 +326,17 @@ if __name__ == "__main__":
             print("=" * 70)
             print("Time:", now.strftime("%Y-%m-%d %H:%M:%S"))
 
-            for controller in controllers:
-                plant = controller.plant
-                logger = loggers[plant["name"]]
+            for plot in PLOTS:
+                plot_id = plot["plot_id"]
+                logger = loggers[plot_id]
 
                 try:
-                    soil_moisture, humidity, temperature_c = read_plant_sensors(
-                        plant, soil_sensors, air_sensors
+                    soil_moisture, humidity, temperature_c = read_plot_sensors(
+                        plot, soil_sensors, air_sensors
                     )
 
                     result = controller.check_plant(
+                        plot_id=plot_id,
                         soil_moisture=soil_moisture,
                         humidity=humidity,
                         temperature_c=temperature_c
@@ -352,7 +344,9 @@ if __name__ == "__main__":
 
                     logger.add_reading(result, now)
 
-                    print(f"Plant: {result['plant']}")
+                    print(f"Plot {plot_id}")
+                    print(f"  Soil Channel: {plot['soil_channel']}")
+                    print(f"  Air Channel: {plot['air_channel']}")
                     print(f"  Soil Moisture: {result['soil_moisture']}")
                     print(f"  Humidity: {result['humidity']:.2f}")
                     print(f"  Temperature (C): {result['temperature_c']:.2f}")
@@ -362,8 +356,7 @@ if __name__ == "__main__":
                     print()
 
                 except Exception as e:
-                    print(f"Plant: {plant['name']}")
-                    print(f"  Error: {e}")
+                    print(f"Plot {plot_id} Error: {e}")
                     print()
 
             time.sleep(sample_interval_seconds)
