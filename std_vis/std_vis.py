@@ -1,72 +1,149 @@
-# Basic bounding box
-# referenced from tutorial from official docs
-# https://docs.opencv.org/4.x/da/d0c/tutorial_bounding_rects_circles.html
-#TODO
-# After ssh access is reproducible the following needs to be added for variables
-# sudo apt install -y python3-picamera2 python3-opencv libcamera-hello
-
 import cv2 as cv
 import numpy as np
-import random as rng
 import time
 from picamera2 import Picamera2
 
-rng.seed(12345)
-
 W, H = 640, 480
 
-# ---- Picamera2 setup ----
+# -----------------------------
+# Physical dimensions in mm
+# -----------------------------
+QR_SIZE_MM = 31     # CHANGE THIS to the actual printed QR size I SWEAR TO GOD TYSON YOU BASTARD MAN
+BOX_SIZE_MM = 162.0    # desired box size
+
+# -----------------------------
+# Picamera2 setup
+# -----------------------------
 picam2 = Picamera2()
-config = picam2.create_preview_configuration(main={"format": "BGR888", "size": (W, H)})
+config = picam2.create_preview_configuration(
+    main={"format": "BGR888", "size": (W, H)}
+)
 picam2.configure(config)
 picam2.start()
-time.sleep(1)  # AE settle
+time.sleep(1)
 
-# ---- OpenCV UI ----
-source_window = "Live"
+# -----------------------------
+# OpenCV setup
+# -----------------------------
+source_window = "QR Box"
 cv.namedWindow(source_window)
 
-max_thresh = 255
-thresh = 100  # initial
-def on_trackbar(val):
-    global thresh
-    thresh = val
+qr_detector = cv.QRCodeDetector()
 
-cv.createTrackbar("Canny thresh", source_window, thresh, max_thresh, on_trackbar)
+def draw_labeled_polygon(img, pts, color, label=None, thickness=2):
+    pts_int = pts.astype(np.int32).reshape((-1, 1, 2))
+    cv.polylines(img, [pts_int], True, color, thickness)
+
+    if label is not None:
+        x, y = pts_int[0, 0]
+        cv.putText(
+            img,
+            label,
+            (x + 8, y - 8),
+            cv.FONT_HERSHEY_SIMPLEX,
+            0.6,
+            color,
+            2,
+            cv.LINE_AA
+        )
 
 while True:
-    frame = picam2.capture_array()  # BGR888 a numpy array is necessary "start" frame
+    frame = picam2.capture_array()
+    display = frame.copy()
 
-    # does grayscale + blur
-    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-    gray = cv.blur(gray, (3, 3))
+    retval, decoded_info, points, _ = qr_detector.detectAndDecodeMulti(frame)
 
-    # edges + contours for box
-    canny_output = cv.Canny(gray, thresh, thresh * 2)
-    contours, _ = cv.findContours(canny_output, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+    if retval and points is not None:
+        for i, qr_pts in enumerate(points):
+            img_pts = np.array(qr_pts, dtype=np.float32)
 
-    # draw on a copy of the frame or copy the blank
-    drawing = frame.copy()
+            # Draw detected QR outline
+            draw_labeled_polygon(display, img_pts, (0, 255, 0), "QR")
 
-    for c in contours:
-        # ADJUST SO NOISE ISN'T Insane
-        area = cv.contourArea(c)
-        if area < 20: #noise threshhold 
-            continue
+            # Show decoded text
+            qr_text = decoded_info[i] if i < len(decoded_info) else ""
+            if qr_text:
+                tx, ty = img_pts[0].astype(int)
+                cv.putText(
+                    display,
+                    f"Data: {qr_text}",
+                    (tx + 8, ty + 20),
+                    cv.FONT_HERSHEY_SIMPLEX,
+                    0.5,
+                    (0, 255, 0),
+                    2,
+                    cv.LINE_AA
+                )
 
-        poly = cv.approxPolyDP(c, 3, True)
-        x, y, w, h = cv.boundingRect(poly)
-        (cx, cy), radius = cv.minEnclosingCircle(poly)
+            # -----------------------------------------
+            # QR real-world coordinates in mm
+            # top-left, top-right, bottom-right, bottom-left
+            # -----------------------------------------
+            world_qr = np.array([
+                [0.0, 0.0],
+                [QR_SIZE_MM, 0.0],
+                [QR_SIZE_MM, QR_SIZE_MM],
+                [0.0, QR_SIZE_MM]
+            ], dtype=np.float32)
 
-        color = (rng.randint(0, 256), rng.randint(0, 256), rng.randint(0, 256))
-        cv.drawContours(drawing, [poly], -1, color, 2)
-        cv.rectangle(drawing, (x, y), (x + w, y + h), color, 2)
-        cv.circle(drawing, (int(cx), int(cy)), int(radius), color, 2)
+            # Homography from mm plane -> image
+            H_mat = cv.getPerspectiveTransform(world_qr, img_pts)
 
-    cv.imshow(source_window, drawing)
+            # -----------------------------------------
+            # 162 mm x 162 mm box
+            # QR is the TOP-RIGHT corner of the box
+            #
+            # So the box goes:
+            # left by 162 mm
+            # down by 162 mm
+            #
+            # Anchor point = (QR_SIZE_MM, 0)
+            # -----------------------------------------
+            world_box = np.array([
+                [QR_SIZE_MM - BOX_SIZE_MM, 0.0],               # top-left of big box
+                [QR_SIZE_MM, 0.0],                             # top-right of big box = QR top-right
+                [QR_SIZE_MM, BOX_SIZE_MM],                     # bottom-right
+                [QR_SIZE_MM - BOX_SIZE_MM, BOX_SIZE_MM]        # bottom-left
+            ], dtype=np.float32).reshape(-1, 1, 2)
+
+            img_box = cv.perspectiveTransform(world_box, H_mat).reshape(-1, 2)
+
+            # Draw projected 162x162 mm box
+            draw_labeled_polygon(display, img_box, (255, 0, 255), "162mm x 162mm")
+
+            # Mark anchor at QR top-right
+            anchor_world = np.array([[[QR_SIZE_MM, 0.0]]], dtype=np.float32)
+            anchor_img = cv.perspectiveTransform(anchor_world, H_mat).reshape(2)
+            anchor = tuple(anchor_img.astype(int))
+
+            cv.circle(display, anchor, 5, (0, 0, 255), -1)
+            cv.putText(
+                display,
+                "Anchor: QR top-right",
+                (anchor[0] + 8, anchor[1] - 8),
+                cv.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (0, 0, 255),
+                2,
+                cv.LINE_AA
+            )
+
+    else:
+        cv.putText(
+            display,
+            "No QR detected",
+            (20, 30),
+            cv.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (0, 0, 255),
+            2,
+            cv.LINE_AA
+        )
+
+    cv.imshow(source_window, display)
 
     key = cv.waitKey(1) & 0xFF
-    if key == ord('q') or key == 27:  # q or ESC
+    if key == ord('q') or key == 27:
         break
 
 picam2.stop()
