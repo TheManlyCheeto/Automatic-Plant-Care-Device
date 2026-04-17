@@ -1,5 +1,6 @@
 import time
 import board
+import busio
 import adafruit_ahtx0
 
 i2c = board.I2C()  # SDA/SCL

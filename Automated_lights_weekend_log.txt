@@ -1,0 +1,43 @@
+(.venv) sd_host@APCDSeniorDesign:~/Documents/Automatic-Plant-Care-Device $ /home/sd_host/Documents/Automatic-Plant-Care-Device/.venv/bin/python /home/sd_host/Documents/Automatic-Plant-Care-Device/Automated_lights.py
+Watching time in America/Denver...
+[2026-04-04 06:00:24.028540] Ran LIGHT_ON: {"result":"ok"}
+[2026-04-04 18:00:24.304221] Ran LIGHT_OFF: {"result":"ok"}
+[2026-04-05 06:00:24.573029] Ran LIGHT_ON: {"result":"ok"}
+[2026-04-05 18:00:24.839752] Ran LIGHT_OFF: {"result":"ok"}
+[2026-04-06 06:00:25.109394] Ran LIGHT_ON: {"result":"ok"}
+
+Test 2 W/ motor control added:
+(.venv) sd_host@APCDSeniorDesign:~/Documents/Automatic-Plant-Care-Device $ /home/sd_host/Documents/Automatic-Plant-Care-Device/.venv/bin/python /home/sd_host/Documents/Automatic-Plant-Care-Device/Automated_lights.py
+Watching time in America/Denver...
+[2026-04-06 18:00:04.302045] Ran LIGHT_OFF: {"result":"ok"}
+[2026-04-07 06:00:04.599615] Ran LIGHT_ON: {"result":"ok"}
+[2026-04-07 06:00:04.606372] Ran PUMP_ON: {"result":"ok"}
+[2026-04-07 06:00:08.610809] Ran PUMP_OFF: {"result":"ok"}
+[2026-04-07 18:00:08.853157] Ran LIGHT_OFF: {"result":"ok"}
+[2026-04-08 06:00:09.105219] Ran LIGHT_ON: {"result":"ok"}
+[2026-04-08 06:00:09.115834] Ran PUMP_ON: {"result":"ok"}
+[2026-04-08 06:00:13.122601] Ran PUMP_OFF: {"result":"ok"}
+[2026-04-08 18:00:13.381120] Ran LIGHT_OFF: {"result":"ok"}
+[2026-04-09 06:00:13.669719] Ran LIGHT_ON: {"result":"ok"}
+[2026-04-09 06:00:13.676960] Ran PUMP_ON: {"result":"ok"}
+[2026-04-09 06:00:17.681536] Ran PUMP_OFF: {"result":"ok"}
+[2026-04-09 18:00:17.946367] Ran LIGHT_OFF: {"result":"ok"}
+[2026-04-10 06:00:18.210683] Ran LIGHT_ON: {"result":"ok"}
+[2026-04-10 06:00:18.215865] Ran PUMP_ON: {"result":"ok"}
+[2026-04-10 06:00:22.222247] Ran PUMP_OFF: {"result":"ok"}
+[2026-04-10 18:00:22.485071] Ran LIGHT_OFF: {"result":"ok"}
+[2026-04-11 06:00:22.726560] Ran LIGHT_ON: {"result":"ok"}
+[2026-04-11 06:00:22.733660] Ran PUMP_ON: {"result":"ok"}
+[2026-04-11 06:00:26.740565] Ran PUMP_OFF: {"result":"ok"}
+[2026-04-11 18:00:26.975967] Ran LIGHT_OFF: {"result":"ok"}
+[2026-04-12 06:00:27.252215] Ran LIGHT_ON: {"result":"ok"}
+[2026-04-12 06:00:27.263831] Ran PUMP_ON: {"result":"ok"}
+[2026-04-12 06:00:31.270027] Ran PUMP_OFF: {"result":"ok"}
+[2026-04-12 18:00:01.511913] Ran LIGHT_OFF: {"result":"ok"}
+[2026-04-13 06:00:01.747894] Ran LIGHT_ON: {"result":"ok"}
+[2026-04-13 06:00:01.752518] Ran PUMP_ON: {"result":"ok"}
+[2026-04-13 06:00:05.760104] Ran PUMP_OFF: {"result":"ok"}
+[2026-04-13 18:00:06.025468] Ran LIGHT_OFF: {"result":"ok"}
+[2026-04-14 06:00:06.247507] Ran LIGHT_ON: {"result":"ok"}
+[2026-04-14 06:00:06.253323] Ran PUMP_ON: {"result":"ok"}
+[2026-04-14 06:00:10.261039] Ran PUMP_OFF: {"result":"ok"}

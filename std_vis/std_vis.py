@@ -13,7 +13,7 @@ BOX_SIZE_MM = 162.0    # desired box size
 
 # -----------------------------
 # Picamera2 setup
-# -----------------------------
+# -----------------------------s
 picam2 = Picamera2()
 config = picam2.create_preview_configuration(
     main={"format": "BGR888", "size": (W, H)}
