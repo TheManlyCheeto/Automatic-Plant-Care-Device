@@ -49,6 +49,7 @@ def draw_labeled_polygon(img, pts, color, label=None, thickness=2):
 
 while True:
     frame = picam2.capture_array()
+    frame = cv.flip(frame, -1) # then flip 180 degrees (accross horizontal line)
     display = frame.copy()
 
     retval, decoded_info, points, _ = qr_detector.detectAndDecodeMulti(frame)
