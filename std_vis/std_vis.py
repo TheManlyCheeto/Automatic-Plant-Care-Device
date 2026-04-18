@@ -13,7 +13,7 @@ BOX_SIZE_MM = 162.0    # desired box size
 
 # -----------------------------
 # Picamera2 setup
-# -----------------------------s
+# -----------------------------
 picam2 = Picamera2()
 config = picam2.create_preview_configuration(
     main={"format": "BGR888", "size": (W, H)}
@@ -60,7 +60,7 @@ while True:
             # Draw detected QR outline
             draw_labeled_polygon(display, img_pts, (0, 255, 0), "QR")
 
-            # Show decoded text
+            # Read and display decoded QR value
             qr_text = decoded_info[i] if i < len(decoded_info) else ""
             if qr_text:
                 tx, ty = img_pts[0].astype(int)
@@ -74,6 +74,7 @@ while True:
                     2,
                     cv.LINE_AA
                 )
+                print(f"QR decoded: {qr_text}")
 
             # -----------------------------------------
             # QR real-world coordinates in mm
@@ -91,19 +92,22 @@ while True:
 
             # -----------------------------------------
             # 162 mm x 162 mm box
-            # QR is the TOP-RIGHT corner of the box
+            # QR is the BOTTOM-RIGHT corner of the box
             #
-            # So the box goes:
-            # left by 162 mm
-            # down by 162 mm
+            # So the box extends:
+            #   left by BOX_SIZE_MM from QR left edge
+            #   up by BOX_SIZE_MM from QR bottom edge
             #
-            # Anchor point = (QR_SIZE_MM, 0)
+            # In world coordinates:
+            #   QR occupies x: [0, QR_SIZE_MM], y: [0, QR_SIZE_MM]
+            #   Box bottom-right aligns with QR bottom-right: (QR_SIZE_MM, QR_SIZE_MM)
+            #   Box extends left and up by BOX_SIZE_MM
             # -----------------------------------------
             world_box = np.array([
-                [QR_SIZE_MM - BOX_SIZE_MM, 0.0],               # top-left of big box
-                [QR_SIZE_MM, 0.0],                             # top-right of big box = QR top-right
-                [QR_SIZE_MM, BOX_SIZE_MM],                     # bottom-right
-                [QR_SIZE_MM - BOX_SIZE_MM, BOX_SIZE_MM]        # bottom-left
+                [QR_SIZE_MM - BOX_SIZE_MM, QR_SIZE_MM - BOX_SIZE_MM],   # top-left of box
+                [QR_SIZE_MM,               QR_SIZE_MM - BOX_SIZE_MM],   # top-right of box
+                [QR_SIZE_MM,               QR_SIZE_MM],                  # bottom-right = QR bottom-right
+                [QR_SIZE_MM - BOX_SIZE_MM, QR_SIZE_MM]                  # bottom-left of box
             ], dtype=np.float32).reshape(-1, 1, 2)
 
             img_box = cv.perspectiveTransform(world_box, H_mat).reshape(-1, 2)
@@ -111,15 +115,15 @@ while True:
             # Draw projected 162x162 mm box
             draw_labeled_polygon(display, img_box, (255, 0, 255), "162mm x 162mm")
 
-            # Mark anchor at QR top-right
-            anchor_world = np.array([[[QR_SIZE_MM, 0.0]]], dtype=np.float32)
+            # Mark anchor at QR bottom-right
+            anchor_world = np.array([[[QR_SIZE_MM, QR_SIZE_MM]]], dtype=np.float32)
             anchor_img = cv.perspectiveTransform(anchor_world, H_mat).reshape(2)
             anchor = tuple(anchor_img.astype(int))
 
             cv.circle(display, anchor, 5, (0, 0, 255), -1)
             cv.putText(
                 display,
-                "Anchor: QR top-right",
+                "Anchor: QR bottom-right",
                 (anchor[0] + 8, anchor[1] - 8),
                 cv.FONT_HERSHEY_SIMPLEX,
                 0.5,
