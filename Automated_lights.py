@@ -21,6 +21,14 @@ CHECK_INTERVAL_SECONDS = 30
 last_on_date = None
 last_off_date = None
 
+def move_to(x: float, y: float, speed: int = 3000) -> None:
+    gcode = f"G0 X{x} Y{y} F{speed}"
+    url = f"{MOONRAKER_URL}/printer/gcode/script?script={urllib.parse.quote(gcode)}"
+    req = urllib.request.Request(url, method="POST")
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        body = resp.read().decode()
+        print(f"[{datetime.now()}] Moved to X{x} Y{y}: {body}")
+        
 def run_macro(macro_name: str) -> None:
     url = f"{MOONRAKER_URL}/printer/gcode/script?script={urllib.parse.quote(macro_name)}"
     req = urllib.request.Request(url,method="POST")
