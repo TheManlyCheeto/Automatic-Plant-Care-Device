@@ -24,13 +24,13 @@ tca = adafruit_tca9548a.TCA9548A(i2c)
 
 soil_0 = Seesaw(tca[0], addr=0x36)
 soil_1 = Seesaw(tca[1], addr=0x36)
-soil_2 = Seesaw(tca[2], addr=0x36)
-soil_3 = Seesaw(tca[3], addr=0x36)
+soil_2 = Seesaw(tca[1], addr=0x36)
+soil_3 = Seesaw(tca[1], addr=0x36)
 
-aht4 = adafruit_ahtx0.AHTx0(tca[4])
+aht4 = adafruit_ahtx0.AHTx0(tca[3])
 aht5 = adafruit_ahtx0.AHTx0(tca[5])
 
-# Plot index → sensor mapping
+# Plot index -> sensor mapping
 SOIL_SENSORS = [soil_0, soil_1, soil_2, soil_3]
 AIR_SENSORS  = [aht4, aht4, aht5, aht5]
 
