@@ -42,7 +42,13 @@ import logging
 import threading
 import datetime
 
-from . import menu_keys   # relative import works since we're in extras/display/
+# menu_keys is only importable when this file is loaded from extras/display/.
+# When loaded as a standalone extra (for [lcd_plants] config), we skip it —
+# the display copy handles the actual import.
+try:
+    from . import menu_keys
+except ImportError:
+    menu_keys = None
 
 log = logging.getLogger(__name__)
 
@@ -129,9 +135,18 @@ class PlantMenuManager:
         self.printer  = config.get_printer()
         self.reactor  = self.printer.get_reactor()
 
-        # Config from [display] section
-        self.log_dir    = config.get("log_dir",    "/home/pi/plant_logs")
-        self.plant_name = config.get("plant_name", "basil_1")
+        # Read our settings from [lcd_plants] section in printer.cfg.
+        # We can't put these in [display] — Klipper rejects unknown keys there.
+        # Look up the LcdPlantsConfig helper object registered at load time.
+        cfg_obj = self.printer.lookup_object("lcd_plants", None)
+        if cfg_obj is not None:
+            self.log_dir    = cfg_obj.log_dir
+            self.plant_name = cfg_obj.plant_name
+        else:
+            self.log_dir    = "/home/pi/plant_logs"
+            self.plant_name = "basil_1"
+            log.warning("lcd_plants: no [lcd_plants] section in printer.cfg, "
+                        "using defaults")
 
         # Sensor data
         self._plots = [PlotData() for _ in range(4)]
@@ -151,8 +166,12 @@ class PlantMenuManager:
         self.sub_plot   = 0
         self.edit_value = 0.0
 
-        # Wire up encoder and button hardware
-        menu_keys.MenuKeys(config, self.key_event)
+        # Wire up encoder and button hardware.
+        # menu_keys is only available when loaded from extras/display/.
+        if menu_keys is not None:
+            menu_keys.MenuKeys(config, self.key_event)
+        else:
+            log.error("lcd_plants: menu_keys unavailable — input will not work")
 
         # Register Klipper event handlers
         self.printer.register_event_handler("klippy:ready", self._handle_ready)
@@ -184,7 +203,10 @@ class PlantMenuManager:
                 self._draw_edit(eventtime)
         except Exception as exc:
             log.exception("lcd_plants render: %s", exc)
-        return None
+        # Return a truthy value so display.py's screen_update_event does NOT
+        # fall through to show_data_group.show() which would draw the default
+        # display group over our menu.
+        return True
 
     def key_event(self, key, eventtime):
         """Called by MenuKeys for all encoder and button events."""
@@ -442,3 +464,17 @@ class PlantMenuManager:
         self._row(1, "  Current:%d ADC" % thr,                 eventtime)
         self._row(2, "> Set:    %d ADC" % self.edit_value,     eventtime)
         self._row(3, "Clk=save Lng=cncl",                      eventtime)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Klipper extra entry point
+# Loaded by [lcd_plants] section in printer.cfg.
+# Just stores config values so PlantMenuManager can read them at display init.
+# ─────────────────────────────────────────────────────────────────────────────
+
+class LcdPlantsConfig:
+    def __init__(self, config):
+        self.log_dir    = config.get("log_dir",    "/home/pi/plant_logs")
+        self.plant_name = config.get("plant_name", "basil_1")
+
+def load_config(config):
+    return LcdPlantsConfig(config)
