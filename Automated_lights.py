@@ -62,12 +62,12 @@ def main() -> None:
             print(f"[{now}] Error caught: {e}")
         time.sleep(CHECK_INTERVAL_SECONDS)
 
-# main runtime
-if __name__ == "__main__":
-    # main()
+def movement_test() -> None:
+    move_to(0.0, 0.0)
+    time.sleep(10)
     move_to(120.0, 120.0)
     time.sleep(10)
-    move_to(210.0, 190.0)
+    move_to(210.0, 120.0)
     time.sleep(10)
     move_to(210.0, 0.0)
     time.sleep(10)
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     time.sleep(10)
     move_to(210.0, 240.0)
     time.sleep(10)
-    move_to(210.0, 190.0)
+    move_to(210.0, 120.0)
     time.sleep(10)
     move_to(120.0, 120.0)
     time.sleep(10)
@@ -101,3 +101,7 @@ if __name__ == "__main__":
     time.sleep(10)
     move_to(0.0,0.0)
     print("movement complete :3")
+# main runtime
+if __name__ == "__main__":
+    #main()
+    movement_test()
