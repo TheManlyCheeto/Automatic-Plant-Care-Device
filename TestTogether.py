@@ -1,58 +1,120 @@
+#!/usr/bin/env python3
+
+import os
+import json
 import time
+import datetime
+
 import board
 import adafruit_tca9548a
 import adafruit_ahtx0
 from adafruit_seesaw.seesaw import Seesaw
 
-# Main Raspberry Pi I2C bus
-i2c = board.I2C()
+# ── Config ───────────────────────────────────────────────────────────────────
+LOG_DIR           = "/home/sd_host/Documents/Automatic-Plant-Care-Device/logs"
+PLANT_NAME        = "basil_1"
+POLL_INTERVAL     = 60
+MOISTURE_WARN     = 400
 
-# TCA9548A multiplexer on the main bus
+os.makedirs(LOG_DIR, exist_ok=True)
+
+# ── Hardware ─────────────────────────────────────────────────────────────────
+i2c = board.I2C()
 tca = adafruit_tca9548a.TCA9548A(i2c)
 
-# Create one soil sensor per channel
-soil_0 = Seesaw(tca[0], addr=0x36)   # sensor on channel 0
-soil_1 = Seesaw(tca[1], addr=0x36)   # sensor on channel 1
-soil_2 = Seesaw(tca[1], addr=0x36)   # sensor on channel 2
-soil_3 = Seesaw(tca[1], addr=0x36)   # sensor on channel 3
+soil_0 = Seesaw(tca[0], addr=0x36)
+soil_1 = Seesaw(tca[1], addr=0x36)
+soil_2 = Seesaw(tca[2], addr=0x36)
+soil_3 = Seesaw(tca[3], addr=0x36)
 
-aht4 = adafruit_ahtx0.AHTx0(tca[3]) # outside humidity channel 4
-aht5 = adafruit_ahtx0.AHTx0(tca[5]) # outside humidity channel 5
-#aht6 = adafruit_ahtx0.AHTx0(tca[6]) # outside humidity channel 6
-# aht7 = adafruit_ahtx0.AHTx0(tca[7]) # outside humidity channel 7
+aht4 = adafruit_ahtx0.AHTx0(tca[4])
+aht5 = adafruit_ahtx0.AHTx0(tca[5])
+
+# Plot index → sensor mapping
+SOIL_SENSORS = [soil_0, soil_1, soil_2, soil_3]
+AIR_SENSORS  = [aht4, aht4, aht5, aht5]
+
+
+def today_str():
+    return datetime.date.today().strftime("%Y-%m-%d")
+
+def now_minute_str():
+    return datetime.datetime.now().strftime("%H:%M")
+
+def log_path(plot_num):
+    return os.path.join(LOG_DIR, "%s_plot%d_%s.json" % (PLANT_NAME, plot_num, today_str()))
+
+# ── File helpers ─────────────────────────────────────────────────────────────
+def load_log(path, plot_num):
+    if os.path.isfile(path):
+        try:
+            with open(path, "r") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {
+        "plant":          PLANT_NAME,
+        "plot_id":        plot_num,
+        "date":           today_str(),
+        "minute_summary": {},
+    }
+
+def write_log(path, data):
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(data, f, indent=2)
+    os.replace(tmp, path)
+
+# ── Build a single minute_summary entry ──────────────────────────────────────
+def build_entry(moisture, air_temp, air_humidity):
+    alerts = {}
+    if air_humidity < 30.0:
+        alerts["Humidity is too low"] = 1
+    if air_humidity > 80.0:
+        alerts["Humidity is too high"] = 1
+    if air_temp > 35.0:
+        alerts["Temperature is too high"] = 1
+    if air_temp < 10.0:
+        alerts["Temperature is too low"] = 1
+
+    return {
+        "count":                      1,
+        "avg_soil_moisture":          round(float(moisture), 1),
+        "min_soil_moisture":          int(moisture),
+        "max_soil_moisture":          int(moisture),
+        "avg_humidity":               round(float(air_humidity), 2),
+        "min_humidity":               round(float(air_humidity), 2),
+        "max_humidity":               round(float(air_humidity), 2),
+        "avg_temperature_c":          round(float(air_temp), 2),
+        "min_temperature_c":          round(float(air_temp), 2),
+        "max_temperature_c":          round(float(air_temp), 2),
+        "watering_recommended_count": 1 if moisture < MOISTURE_WARN else 0,
+        "alerts_count":               alerts,
+    }
+
+
+# ── Main loop ────────────────────────────────────────────────────────────────
 while True:
-    moisture_0 = soil_0.moisture_read()
-    temp_0 = soil_0.get_temp()
+    minute_key = now_minute_str()
 
-    moisture_1 = soil_1.moisture_read()
-    temp_1 = soil_1.get_temp()
+    for i in range(4):
+        plot_num = i + 1
+        try:
+            moisture     = SOIL_SENSORS[i].moisture_read()
+            air_temp     = AIR_SENSORS[i].temperature
+            air_humidity = AIR_SENSORS[i].relative_humidity
+        except Exception as e:
+            print(f"Plot {plot_num} error: {e}")
+            continue
 
-    moisture_2 = soil_2.moisture_read()
-    temp_2 = soil_2.get_temp()
+        path     = log_path(plot_num)
+        log_data = load_log(path, plot_num)
+        log_data["date"] = today_str()
+        log_data["minute_summary"][minute_key] = build_entry(
+            moisture, air_temp, air_humidity
+        )
+        write_log(path, log_data)
 
-    moisture_3 = soil_3.moisture_read()
-    temp_3 = soil_3.get_temp()
+        print(f"Plot {plot_num} [{minute_key}] M:{moisture} T:{air_temp:.1f}C H:{air_humidity:.1f}%")
 
-    air_temp1 = aht4.temperature
-    air_humidity1 = aht4.relative_humidity
-
-    air_temp2 = aht5.temperature
-    air_humidity2 = aht5.relative_humidity
-
-    #air_temp3 = aht6.temperature
-    #air_humidity3 = aht6.relative_humidity
-
-    #air_temp4 = aht7.temperature
-    #air_humidity4 = aht7.relative_humidity
-
-    print(f"Channel 0 -> Temp: {temp_0:.2f} C, Moisture: {moisture_0}")
-    print(f"Channel 1 -> Temp: {temp_1:.2f} C, Moisture: {moisture_1}")
-    print(f"Channel 2 -> Temp: {temp_2:.2f} C, Moisture: {moisture_2}")
-    print(f"Channel 3 -> Temp: {temp_3:.2f} C, Moisture: {moisture_3}")
-    print(f"Channel 4 -> Air Temp: {air_temp1:.2f} C, Humidity: {air_humidity1}")
-    print(f"Channel 5 -> Air Temp: {air_temp2:.2f} C, Humidity: {air_humidity2}")
-    #print(f"Channel 6 -> Air Temp: {air_temp3:.2f} C, Humidity: {air_humidity3}")
-    #print(f"Channel 7 -> Air Temp: {air_temp4:.2f} C, Humidity: {air_humidity4}")
-    print("-" * 40)
-
-    time.sleep(2)
+    time.sleep(POLL_INTERVAL)
