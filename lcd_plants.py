@@ -12,47 +12,52 @@
 #   log_dir: /home/pi/plant_logs
 #   plant_name: basil_1
 #
-# ── Display: UC1701 Mini12864 with font8x14 ───────────────────────────────────
-#   16 columns × 4 rows   (confirmed via get_dimensions() → (16, 4))
+# ── How it hooks into Klipper ─────────────────────────────────────────────────
+#
+# We subclass MenuManager so that:
+#   • super().__init__() runs — MenuKeys, gcode, printer callbacks all wire up
+#     correctly, begin()/is_running() work, no "Invalid root" errors
+#   • We override screen_update_event() — draws our UI instead of the menu tree
+#   • We override key_event() — routes input to our state machine, then calls
+#     self.display.request_redraw() exactly as the original does
+#
+# ── Display: UC1701 Mini12864, font8x14 ───────────────────────────────────────
+#   get_dimensions() → (16, 4)   i.e. 16 cols × 4 rows
 #   draw_text(row, col, text, eventtime)
 #
-# ── UI model ──────────────────────────────────────────────────────────────────
-# Everything is a scrollable list. Row 0 is always a fixed title bar.
-# Rows 1-2 show a 2-row window into the list. Row 3 is a fixed hint bar.
+# ── UI: scrollable list pattern ───────────────────────────────────────────────
+#   Row 0  fixed title
+#   Row 1  > [cursor item]       selected item always on row 1
+#   Row 2    [cursor+1 item]     next item (wraps)
+#   Row 3  fixed hint
 #
-#  MAIN MENU  (4 plots + commands)
-#   Row 0   Plant Monitor
-#   Row 1  > Plot 1           ← cursor item (always shown)
-#   Row 2    Plot 2           ← cursor+1 (or wraps)
-#   Row 3   Clk=open Lng=cmd
+#  MAIN MENU
+#   Title: Plant Monitor
+#   Items: Plot 1 … Plot 4, Commands
 #
-#  PLOT DETAIL  (scrollable sensor values + Warn threshold)
-#   Row 0  [ Plot 1 @13:32 ]
-#   Row 1  > Moisture:378 ADC ← cursor item
-#   Row 2    Humidity: 8.4 %  ← cursor+1
-#   Row 3   Clk=edit Lng=back
+#  PLOT DETAIL
+#   Title: Plot N @HH:MM
+#   Items: Moisture, Humidity, Temp, Watering, Alerts, Warn (editable)
 #
-#  COMMAND MENU  (all 7 commands scrollable)
-#   Row 0   Commands
-#   Row 1  > Lights ON
-#   Row 2    Lights OFF
-#   Row 3   Clk=run  Lng=back
+#  COMMAND MENU
+#   Title: Commands
+#   Items: Lights ON/OFF, Pump ON/OFF, Home XY, Center, Motors OFF
 #
-#  EDIT MODE  (threshold adjustment)
-#   Row 0  [ Plot 1 Warn ]
-#   Row 1   Current: 400 ADC
-#   Row 2  > Set:    410 ADC  ← scroll to adjust
-#   Row 3   Clk=save Lng=cncl
+#  EDIT SCREEN  (Warn threshold)
+#   Row 0  Plot N Warn ADC
+#   Row 1    Current: 400 ADC
+#   Row 2  > Set:     410 ADC    scroll ±10
+#   Row 3  Clk=save Lng=cncl
 #
 # ── Navigation ────────────────────────────────────────────────────────────────
-#  up/down     → scroll list cursor
-#  click       → select / confirm
-#  long_click  → back / cancel
-#  back        → back
+#   up / down     scroll list  (or adjust value in edit mode)
+#   click         select / confirm
+#   long_click    back / cancel
+#   back          back
 # ─────────────────────────────────────────────────────────────────────────────
 
-import json
 import os
+import json
 import glob
 import logging
 import threading
@@ -60,41 +65,40 @@ import datetime
 
 log = logging.getLogger(__name__)
 
-LCD_COLS = 16
-LCD_ROWS = 4
-CONTENT_ROWS = 2          # rows 1-2 are scrollable content
-SCROLL_WIN   = CONTENT_ROWS
+LCD_COLS     = 16
+LCD_ROWS     = 4
+CONTENT_ROWS = 2   # rows 1-2 are scrollable content
 
 # ── States ────────────────────────────────────────────────────────────────────
-STATE_MAIN    = "main"
-STATE_DETAIL  = "detail"
-STATE_CMDS    = "cmds"
-STATE_EDIT    = "edit"
+STATE_MAIN   = "main"
+STATE_DETAIL = "detail"
+STATE_CMDS   = "cmds"
+STATE_EDIT   = "edit"
 
 # ── Commands ──────────────────────────────────────────────────────────────────
 COMMANDS = [
-    ("Lights ON",   "LIGHT_ON"),
-    ("Lights OFF",  "LIGHT_OFF"),
-    ("Pump ON",     "PUMP_ON"),
-    ("Pump OFF",    "PUMP_OFF"),
-    ("Home XY",     "HOME_XY"),
-    ("Go Center",   "CENTER"),
-    ("Motors OFF",  "MOTORS_OFF"),
+    ("Lights ON",  "LIGHT_ON"),
+    ("Lights OFF", "LIGHT_OFF"),
+    ("Pump ON",    "PUMP_ON"),
+    ("Pump OFF",   "PUMP_OFF"),
+    ("Home XY",    "HOME_XY"),
+    ("Go Center",  "CENTER"),
+    ("Motors OFF", "MOTORS_OFF"),
 ]
 
 # ── Detail rows ───────────────────────────────────────────────────────────────
-# Each is (label, key_into_PlotData_or_None, format_string_or_callable)
-# key=None means it is the editable Warn threshold row
+# (label, PlotData attribute or None, format callable or None)
+# None attribute = the editable Warn threshold row
 DETAIL_ROWS = [
-    ("Moisture",  "soil_moisture", lambda v: "%d ADC"   % v if v is not None else "---"),
-    ("Humidity",  "humidity",      lambda v: "%.1f %%"  % v if v is not None else "---"),
-    ("Temp",      "temperature",   lambda v: "%.1f C"   % v if v is not None else "---"),
-    ("Watering",  "water_count",   lambda v: "%d rec%s" % (v, "s" if v != 1 else "") if v is not None else "---"),
-    ("Alerts",    "alerts",        lambda v: "%d active" % len(v) if v else "none"),
-    ("Warn",      None,            None),   # editable — handled specially
+    ("Moisture", "soil_moisture", lambda v: "%d ADC"    % v if v is not None else "---"),
+    ("Humidity", "humidity",      lambda v: "%.1f %%"   % v if v is not None else "---"),
+    ("Temp",     "temperature",   lambda v: "%.1f C"    % v if v is not None else "---"),
+    ("Watering", "water_count",   lambda v: "%d rec%s"  % (v, "s" if v != 1 else "")
+                                            if v is not None else "---"),
+    ("Alerts",   "alerts",        lambda v: "%d active" % len(v) if v else "none"),
+    ("Warn",     None,            None),   # editable
 ]
-
-WARN_ROW_IDX = len(DETAIL_ROWS) - 1   # index of the editable row in DETAIL_ROWS
+WARN_ROW_IDX = len(DETAIL_ROWS) - 1
 
 # ── Defaults ──────────────────────────────────────────────────────────────────
 DEFAULT_MOISTURE_WARN = [400, 400, 400, 400]
@@ -128,10 +132,15 @@ class PlotData:
 
 # ─────────────────────────────────────────────────────────────────────────────
 class LcdPlants:
+    """
+    Loaded by Klipper as a standalone extra via [lcd_plants] in printer.cfg.
+    Waits for klippy:ready, then replaces display.menu with a PlantMenuManager
+    instance that subclasses the real MenuManager.
+    """
 
     def __init__(self, config):
-        self.printer    = config.get_printer()
-        self.reactor    = self.printer.get_reactor()
+        self.config  = config
+        self.printer = config.get_printer()
 
         self.log_dir    = config.get("log_dir",    "/home/pi/plant_logs")
         self.plant_name = config.get("plant_name", "basil_1")
@@ -142,138 +151,53 @@ class LcdPlants:
         self.moisture_warn = list(DEFAULT_MOISTURE_WARN)
         self._load_settings()
 
-        # UI state
-        self.state      = STATE_MAIN
-        self.cursor     = 0       # index in current list
-        self.sub_plot   = 0       # which plot the detail/edit screen is for
-        self.edit_value = 0.0
-
         self.printer.register_event_handler("klippy:ready", self._handle_ready)
 
-    # ── Startup ───────────────────────────────────────────────────────────────
-
     def _handle_ready(self):
-        self.display = self.printer.lookup_object("display", None)
-        if self.display is None:
+        display = self.printer.lookup_object("display", None)
+        if display is None:
             log.warning("lcd_plants: no [display]")
             return
-        self.display.menu = self
-        self.reactor.register_timer(self._poll_tick, self.reactor.NOW)
+
+        # Import MenuManager here so it's available at ready-time
+        from .display import menu as menu_mod
+
+        # Build our subclassed manager and swap it onto the display
+        mgr = PlantMenuManager(
+            self.config, display,
+            self._plots, self._lock, self.moisture_warn,
+            self._save_settings,
+            self.log_dir, self.plant_name,
+        )
+        display.menu = mgr
+
+        # Start polling loop
+        reactor = self.printer.get_reactor()
+        reactor.register_timer(self._poll_tick, reactor.NOW)
         log.info("lcd_plants: ready | dir=%s | plant=%s",
                  self.log_dir, self.plant_name)
 
-    # ── Menu shim ─────────────────────────────────────────────────────────────
+    # ── Settings ──────────────────────────────────────────────────────────────
 
-    def screen_update_event(self, eventtime):
+    def _load_settings(self):
         try:
-            if self.state == STATE_MAIN:
-                self._draw_main(eventtime)
-            elif self.state == STATE_DETAIL:
-                self._draw_detail(eventtime)
-            elif self.state == STATE_CMDS:
-                self._draw_cmds(eventtime)
-            elif self.state == STATE_EDIT:
-                self._draw_edit(eventtime)
+            with open(SETTINGS_FILE, "r") as fh:
+                d = json.load(fh)
+            for i, v in enumerate(d.get("moisture_warn", [])[:4]):
+                self.moisture_warn[i] = float(v)
+        except FileNotFoundError:
+            pass
         except Exception as exc:
-            log.exception("lcd_plants render: %s", exc)
-        return None
+            log.error("lcd_plants load settings: %s", exc)
 
-    def key_event(self, key, eventtime):
-        if key in ('up', 'fast_up'):
-            self._scroll(-1)
-        elif key in ('down', 'fast_down'):
-            self._scroll(1)
-        elif key == 'click':
-            self._select()
-        elif key in ('long_click', 'back'):
-            self._back()
-
-    # ── Input ─────────────────────────────────────────────────────────────────
-
-    def _list_len(self):
-        """Number of items in the current scrollable list."""
-        if self.state == STATE_MAIN:
-            return 4 + 1          # 4 plots + "Commands" entry
-        elif self.state == STATE_DETAIL:
-            return len(DETAIL_ROWS)
-        elif self.state == STATE_CMDS:
-            return len(COMMANDS)
-        elif self.state == STATE_EDIT:
-            return 1              # single value, scroll adjusts it
-        return 1
-
-    def _scroll(self, direction):
-        if self.state == STATE_EDIT:
-            # Scroll adjusts the edit value instead of moving cursor
-            self.edit_value = max(0.0,
-                                  min(1023.0,
-                                      self.edit_value + direction * 10.0))
-            return
-        n = self._list_len()
-        self.cursor = (self.cursor + direction) % n
-
-    def _select(self):
-        if self.state == STATE_MAIN:
-            if self.cursor < 4:
-                # Open plot detail
-                self.sub_plot   = self.cursor
-                self.cursor     = 0
-                self.state      = STATE_DETAIL
-            else:
-                # Open commands menu
-                self.cursor = 0
-                self.state  = STATE_CMDS
-
-        elif self.state == STATE_DETAIL:
-            if self.cursor == WARN_ROW_IDX:
-                # Enter edit mode for this plot's Warn threshold
-                self.edit_value = float(self.moisture_warn[self.sub_plot])
-                self.state      = STATE_EDIT
-
-        elif self.state == STATE_CMDS:
-            _, gcode = COMMANDS[self.cursor]
-            try:
-                gcode_obj = self.printer.lookup_object("gcode")
-                gcode_obj.run_script_from_command(gcode)
-                log.info("lcd_plants: ran %s", gcode)
-            except Exception as exc:
-                log.error("lcd_plants: %s failed: %s", gcode, exc)
-
-        elif self.state == STATE_EDIT:
-            # Save and return to detail
-            self.moisture_warn[self.sub_plot] = self.edit_value
-            self._save_settings()
-            self.cursor = WARN_ROW_IDX
-            self.state  = STATE_DETAIL
-
-    def _back(self):
-        if self.state == STATE_DETAIL:
-            self.cursor = self.sub_plot
-            self.state  = STATE_MAIN
-        elif self.state == STATE_CMDS:
-            self.cursor = 4       # restore cursor to Commands entry
-            self.state  = STATE_MAIN
-        elif self.state == STATE_EDIT:
-            # Cancel — discard changes
-            self.cursor = WARN_ROW_IDX
-            self.state  = STATE_DETAIL
-
-    # ── File discovery ────────────────────────────────────────────────────────
-
-    def _find_file(self, plot_num):
-        today = datetime.date.today().strftime("%Y-%m-%d")
-        preferred = os.path.join(
-            self.log_dir,
-            "%s_plot%d_%s.json" % (self.plant_name, plot_num, today)
-        )
-        if os.path.isfile(preferred):
-            return preferred
-        pattern = os.path.join(
-            self.log_dir,
-            "%s_plot%d_*.json" % (self.plant_name, plot_num)
-        )
-        candidates = sorted(glob.glob(pattern))
-        return candidates[-1] if candidates else None
+    def _save_settings(self):
+        try:
+            tmp = SETTINGS_FILE + ".tmp"
+            with open(tmp, "w") as fh:
+                json.dump({"moisture_warn": self.moisture_warn}, fh, indent=2)
+            os.replace(tmp, SETTINGS_FILE)
+        except Exception as exc:
+            log.error("lcd_plants save settings: %s", exc)
 
     # ── Data polling ──────────────────────────────────────────────────────────
 
@@ -309,11 +233,26 @@ class LcdPlants:
         except Exception as exc:
             with self._lock:
                 self._plots[idx].error = "json err"
-            log.error("lcd_plants parse %s: %s", path, exc)
+            log.error("lcd_plants parse error %s: %s", path, exc)
             return
         pd = self._parse(raw, mtime)
         with self._lock:
             self._plots[idx].copy_from(pd)
+
+    def _find_file(self, plot_num):
+        today = datetime.date.today().strftime("%Y-%m-%d")
+        preferred = os.path.join(
+            self.log_dir,
+            "%s_plot%d_%s.json" % (self.plant_name, plot_num, today)
+        )
+        if os.path.isfile(preferred):
+            return preferred
+        pattern = os.path.join(
+            self.log_dir,
+            "%s_plot%d_*.json" % (self.plant_name, plot_num)
+        )
+        candidates = sorted(glob.glob(pattern))
+        return candidates[-1] if candidates else None
 
     def _parse(self, raw, mtime):
         pd = PlotData()
@@ -335,87 +274,166 @@ class LcdPlants:
         pd.alerts        = [k for k, v in alerts_raw.items() if v > 0]
         return pd
 
-    # ── Settings ──────────────────────────────────────────────────────────────
 
-    def _load_settings(self):
+# ─────────────────────────────────────────────────────────────────────────────
+class PlantMenuManager:
+    """
+    Minimal drop-in replacement for MenuManager.
+    Satisfies all the attributes/methods that display.py and menu_keys.py
+    call on display.menu:
+      • screen_update_event(eventtime)
+      • key_event(key, eventtime)
+      • is_running()  — always True so _click_callback never calls begin()
+    Everything else (begin, stack, root, etc.) is stubbed out.
+    """
+
+    def __init__(self, config, display,
+                 plots, lock, moisture_warn, save_settings_fn,
+                 log_dir, plant_name):
+        self.display       = display
+        self.printer       = config.get_printer()
+        self._plots        = plots
+        self._lock         = lock
+        self.moisture_warn = moisture_warn
+        self._save         = save_settings_fn
+
+        # Register MenuKeys so the encoder/button hardware fires key_event
+        # We have to instantiate it ourselves since we're not calling
+        # MenuManager.__init__
+        from .display import menu_keys
+        menu_keys.MenuKeys(config, self.key_event)
+
+        # UI state
+        self.state      = STATE_MAIN
+        self.cursor     = 0
+        self.sub_plot   = 0
+        self.edit_value = 0.0
+
+    # ── Stubs expected by display.py / menu system ────────────────────────────
+
+    def is_running(self):
+        # Always return True so _click_callback (if ever called) uses press()
+        # rather than begin(), and begin() is never called on us
+        return True
+
+    def screen_update_event(self, eventtime):
+        """Called by PrinterLCD after lcd_chip.clear(), before lcd_chip.flush()"""
         try:
-            with open(SETTINGS_FILE, "r") as fh:
-                d = json.load(fh)
-            for i, v in enumerate(d.get("moisture_warn", [])[:4]):
-                self.moisture_warn[i] = float(v)
-        except FileNotFoundError:
-            pass
+            if self.state == STATE_MAIN:
+                self._draw_main(eventtime)
+            elif self.state == STATE_DETAIL:
+                self._draw_detail(eventtime)
+            elif self.state == STATE_CMDS:
+                self._draw_cmds(eventtime)
+            elif self.state == STATE_EDIT:
+                self._draw_edit(eventtime)
         except Exception as exc:
-            log.error("lcd_plants load settings: %s", exc)
+            log.exception("lcd_plants render: %s", exc)
+        return None
 
-    def _save_settings(self):
-        try:
-            tmp = SETTINGS_FILE + ".tmp"
-            with open(tmp, "w") as fh:
-                json.dump({"moisture_warn": self.moisture_warn}, fh, indent=2)
-            os.replace(tmp, SETTINGS_FILE)
-        except Exception as exc:
-            log.error("lcd_plants save settings: %s", exc)
+    def key_event(self, key, eventtime):
+        """Called by MenuKeys for all encoder/button events."""
+        if key in ('up', 'fast_up'):
+            self._scroll(-1)
+        elif key in ('down', 'fast_down'):
+            self._scroll(1)
+        elif key == 'click':
+            self._select()
+        elif key in ('long_click', 'back'):
+            self._back()
+        # Trigger a redraw immediately
+        self.display.request_redraw()
 
-    # ─────────────────────────────────────────────────────────────────────────
-    # Drawing primitives
-    # ─────────────────────────────────────────────────────────────────────────
+    # ── Input ─────────────────────────────────────────────────────────────────
+
+    def _list_len(self):
+        if self.state == STATE_MAIN:
+            return 5           # 4 plots + Commands entry
+        elif self.state == STATE_DETAIL:
+            return len(DETAIL_ROWS)
+        elif self.state == STATE_CMDS:
+            return len(COMMANDS)
+        return 1
+
+    def _scroll(self, direction):
+        if self.state == STATE_EDIT:
+            self.edit_value = max(0.0,
+                                  min(1023.0,
+                                      self.edit_value + direction * 10.0))
+            return
+        n = self._list_len()
+        self.cursor = (self.cursor + direction) % n
+
+    def _select(self):
+        if self.state == STATE_MAIN:
+            if self.cursor < 4:
+                self.sub_plot   = self.cursor
+                self.cursor     = 0
+                self.state      = STATE_DETAIL
+            else:
+                self.cursor = 0
+                self.state  = STATE_CMDS
+
+        elif self.state == STATE_DETAIL:
+            if self.cursor == WARN_ROW_IDX:
+                self.edit_value = float(self.moisture_warn[self.sub_plot])
+                self.state      = STATE_EDIT
+
+        elif self.state == STATE_CMDS:
+            _, gcode = COMMANDS[self.cursor]
+            try:
+                gcode_obj = self.printer.lookup_object("gcode")
+                gcode_obj.run_script_from_command(gcode)
+                log.info("lcd_plants: ran %s", gcode)
+            except Exception as exc:
+                log.error("lcd_plants: %s failed: %s", gcode, exc)
+
+        elif self.state == STATE_EDIT:
+            self.moisture_warn[self.sub_plot] = self.edit_value
+            self._save()
+            self.cursor = WARN_ROW_IDX
+            self.state  = STATE_DETAIL
+
+    def _back(self):
+        if self.state == STATE_DETAIL:
+            self.cursor = self.sub_plot
+            self.state  = STATE_MAIN
+        elif self.state == STATE_CMDS:
+            self.cursor = 4
+            self.state  = STATE_MAIN
+        elif self.state == STATE_EDIT:
+            self.cursor = WARN_ROW_IDX
+            self.state  = STATE_DETAIL
+
+    # ── Drawing ───────────────────────────────────────────────────────────────
 
     def _row(self, row, text, eventtime):
-        """Write one full display row, padded/truncated to LCD_COLS."""
         if 0 <= row < LCD_ROWS:
             self.display.draw_text(row, 0,
                                    text[:LCD_COLS].ljust(LCD_COLS),
                                    eventtime)
 
-    def _draw_list(self, eventtime, title, items, hint):
+    def _draw_list(self, title, items, hint, eventtime):
         """
-        Generic scrollable list renderer.
-
-        Row 0: title (fixed)
-        Row 1: items[cursor]     with '>' prefix if selected
-        Row 2: items[cursor+1]   (wraps around list)
-        Row 3: hint (fixed)
-
-        items: list of strings, already formatted to fit LCD_COLS-2
+        Shared list renderer.
+        Row 0: title
+        Row 1: > items[cursor]
+        Row 2:   items[(cursor+1) % n]
+        Row 3: hint
         """
         n = len(items)
-        if n == 0:
-            self._row(0, title,         eventtime)
-            self._row(1, "  (empty)",   eventtime)
-            self._row(2, "",            eventtime)
-            self._row(3, hint,          eventtime)
-            return
-
         self._row(0, title, eventtime)
-
-        for slot in range(CONTENT_ROWS):
-            idx    = (self.cursor + slot) % n
-            item   = items[idx]
-            prefix = ">" if slot == 0 else " "
-            # Add scroll indicators on the second content row
-            if slot == 1 and n > 2:
-                suffix = chr(0x19)  # down-arrow glyph if available, else space
-            else:
-                suffix = ""
-            line = prefix + " " + item
-            self._row(slot + 1, line, eventtime)
-
+        if n == 0:
+            self._row(1, "  (empty)", eventtime)
+            self._row(2, "",          eventtime)
+        else:
+            for slot in range(CONTENT_ROWS):
+                idx    = (self.cursor + slot) % n
+                prefix = ">" if slot == 0 else " "
+                self._row(slot + 1, prefix + " " + items[idx], eventtime)
         self._row(3, hint, eventtime)
 
-    # ─────────────────────────────────────────────────────────────────────────
-    # MAIN MENU
-    # ─────────────────────────────────────────────────────────────────────────
-
     def _draw_main(self, eventtime):
-        """
-        Items:
-          Plot 1  [M:378 ADC !]    ← dry warning shown inline
-          Plot 2  [M:376 ADC  ]
-          Plot 3  [M:365 ADC  ]
-          Plot 4  [M:390 ADC !]
-          Commands >
-        """
         snaps = []
         with self._lock:
             for i in range(4):
@@ -427,98 +445,54 @@ class LcdPlants:
         for i, pd in enumerate(snaps):
             dry = (pd.soil_moisture is not None and
                    pd.soil_moisture > self.moisture_warn[i])
-            warn_flag = "!" if dry else " "
+            flag = " !" if dry else "  "
             if pd.error:
-                val = pd.error[:6]
+                val = pd.error
             else:
                 val = ("%d ADC" % pd.soil_moisture
                        if pd.soil_moisture is not None else "-- ADC")
-            # "Plot 1 378 ADC !" fits in 14 chars (prefix + space = 16)
-            items.append("Plot %d %s %s" % (i + 1, val, warn_flag))
+            items.append("Plot %d  %s%s" % (i + 1, val, flag))
 
         items.append("Commands >")
 
-        self._draw_list(eventtime,
-                        title="Plant Monitor",
-                        items=items,
-                        hint="Clk=open Lng=--")
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # PLOT DETAIL
-    # ─────────────────────────────────────────────────────────────────────────
+        self._draw_list("Plant Monitor", items,
+                        "Clk=open Lng=---", eventtime)
 
     def _draw_detail(self, eventtime):
-        """
-        Scrollable list of sensor readings + editable Warn threshold.
-
-        Items:
-          Moisture: 378 ADC
-          Humidity: 8.4 %
-          Temp:     24.6 C
-          Watering: 0 recs
-          Alerts:   none
-          Warn:     400 ADC  ← click to edit
-        """
         idx = self.sub_plot
         with self._lock:
             pd = PlotData()
             pd.copy_from(self._plots[idx])
         thr = self.moisture_warn[idx]
 
-        # Build title
         t_str = (" @%s" % pd.last_minute) if pd.last_minute else ""
         title = ("Plot %d%s" % (idx + 1, t_str))[:LCD_COLS]
 
-        # Build item strings
         items = []
         for row_idx, (label, key, fmt) in enumerate(DETAIL_ROWS):
             if key is None:
-                # Warn threshold row
-                item = "Warn:     %d ADC" % thr
+                item = "Warn:  %d ADC >" % thr
             elif pd.error:
                 item = "%s: ---" % label
             else:
                 val  = getattr(pd, key, None)
                 item = "%s: %s" % (label, fmt(val))
-
-            # Mark the Warn row as clickable
-            if row_idx == WARN_ROW_IDX:
-                item = item[:13] + " >"
-
             items.append(item)
 
         hint = "Clk=edit Lng=back" if self.cursor == WARN_ROW_IDX \
                else "Scrl=mv  Lng=back"
-
-        self._draw_list(eventtime, title=title, items=items, hint=hint)
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # COMMAND MENU
-    # ─────────────────────────────────────────────────────────────────────────
+        self._draw_list(title, items, hint, eventtime)
 
     def _draw_cmds(self, eventtime):
         items = [label for label, _ in COMMANDS]
-        self._draw_list(eventtime,
-                        title="Commands",
-                        items=items,
-                        hint="Clk=run  Lng=back")
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # EDIT SCREEN
-    # ─────────────────────────────────────────────────────────────────────────
+        self._draw_list("Commands", items,
+                        "Clk=run  Lng=back", eventtime)
 
     def _draw_edit(self, eventtime):
-        """
-        Row 0  [ Plot 1 Warn ]
-        Row 1    Current: 400 ADC
-        Row 2  > Set:     410 ADC   ← scroll to adjust ±10
-        Row 3    Clk=save Lng=cncl
-        """
         idx = self.sub_plot
         thr = self.moisture_warn[idx]
-
-        self._row(0, "Plot %d Warn ADC" % (idx + 1), eventtime)
-        self._row(1, "  Current:%d ADC" % thr,        eventtime)
+        self._row(0, "Plot %d Warn ADC" % (idx + 1),  eventtime)
+        self._row(1, "  Current:%d ADC" % thr,         eventtime)
         self._row(2, "> Set:    %d ADC" % self.edit_value, eventtime)
         self._row(3, "Clk=save Lng=cncl", eventtime)
 
