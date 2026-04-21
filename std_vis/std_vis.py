@@ -8,7 +8,7 @@ W, H = 640, 480
 # -----------------------------
 # Physical dimensions in mm
 # -----------------------------
-QR_SIZE_MM = 31     # CHANGE THIS to the actual printed QR size I SWEAR TO GOD TYSON YOU BASTARD MAN
+QR_SIZE_MM = 31     #SOLVED: CHANGE THIS to the actual printed QR size I SWEAR TO GOD TYSON YOU BASTARD MAN
 BOX_SIZE_MM = 162.0    # desired box size
 
 # -----------------------------
