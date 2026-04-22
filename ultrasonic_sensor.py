@@ -20,7 +20,7 @@ def measure_distance() -> float:
     GPIO.output(TRIG_PIN, False)
 
     # Wait for echo to start
-    timeout = time.time() + 0.8
+    timeout = time.time() + 1
     pulse_start = time.time()
     while GPIO.input(ECHO_PIN) == 0:
         pulse_start = time.time()
@@ -41,14 +41,15 @@ def measure_distance() -> float:
     print(f"distance: {distance}")
     return round(distance, 2)
 
-try:
-    print("while is running")
-    while True:
-        dist = measure_distance()
-        plant_growth = 245.3 - dist # distance from ultrasonic sensor to the dirt level
-        print(f"Distance: {dist} mm, Plant Growth: {plant_growth} mm")
-        time.sleep(0.5)
+def report_plant_growth():
+    try:
+        print("while is running")
+        while True:
+            dist = measure_distance()
+            plant_growth = 245.3 - dist # distance from ultrasonic sensor to the dirt level
+            print(f"Distance: {dist} mm, Plant Growth: {plant_growth} mm")
+            time.sleep(0.5)
 
-except KeyboardInterrupt:
-    print("Stopped")
-    GPIO.cleanup()
+    except KeyboardInterrupt:
+        print("Stopped")
+        GPIO.cleanup()

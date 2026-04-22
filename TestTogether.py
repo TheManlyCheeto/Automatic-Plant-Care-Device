@@ -94,27 +94,28 @@ def build_entry(moisture, air_temp, air_humidity):
 
 
 # ── Main loop ────────────────────────────────────────────────────────────────
-while True:
-    minute_key = now_minute_str()
+def soil_temp_sens():
+    while True:
+        minute_key = now_minute_str()
 
-    for i in range(4):
-        plot_num = i + 1
-        try:
-            moisture     = SOIL_SENSORS[i].moisture_read()
-            air_temp     = AIR_SENSORS[i].temperature
-            air_humidity = AIR_SENSORS[i].relative_humidity
-        except Exception as e:
-            print(f"Plot {plot_num} error: {e}")
-            continue
+        for i in range(4):
+            plot_num = i + 1
+            try:
+                moisture     = SOIL_SENSORS[i].moisture_read()
+                air_temp     = AIR_SENSORS[i].temperature
+                air_humidity = AIR_SENSORS[i].relative_humidity
+            except Exception as e:
+                print(f"Plot {plot_num} error: {e}")
+                continue
 
-        path     = log_path(plot_num)
-        log_data = load_log(path, plot_num)
-        log_data["date"] = today_str()
-        log_data["minute_summary"][minute_key] = build_entry(
-            moisture, air_temp, air_humidity
-        )
-        write_log(path, log_data)
+            path     = log_path(plot_num)
+            log_data = load_log(path, plot_num)
+            log_data["date"] = today_str()
+            log_data["minute_summary"][minute_key] = build_entry(
+                moisture, air_temp, air_humidity
+            )
+            write_log(path, log_data)
 
-        print(f"Plot {plot_num} [{minute_key}] M:{moisture} T:{air_temp:.1f}C H:{air_humidity:.1f}%")
+            print(f"Plot {plot_num} [{minute_key}] M:{moisture} T:{air_temp:.1f}C H:{air_humidity:.1f}%")
 
-    time.sleep(POLL_INTERVAL)
+        time.sleep(POLL_INTERVAL)

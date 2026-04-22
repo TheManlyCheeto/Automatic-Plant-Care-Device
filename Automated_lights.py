@@ -4,6 +4,7 @@ import urllib.request
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from multiprocessing import Process
+from TestTogether import soil_temp_sens
 
 MOONRAKER_URL = "http://127.0.0.1:7125"
 TIMEZONE = "America/Denver"
@@ -66,25 +67,24 @@ def wateringlights() -> None:
 
 def movement_test() -> None:
     positions = [
-        (0.0,   0.0),
         (120.0, 120.0),
         (210.0, 120.0),
-        (210.0, 0.0),
-        (120.0, 0.0),
+        (210.0, 1.0),
+        (120.0, 1.0),
         (120.0, 120.0),
-        (0.0,   100.0),
-        (0.0,   0.0),
-        (120.0, 0.0),
+        (1.0,   100.0),
+        (1.0,   1.0),
+        (120.0, 1.0),
         (120.0, 120.0),
-        (10.0,  240.0),
-        (0.0,   100.0),
+        (10.0,  235.0),
+        (1.0,   100.0),
         (120.0, 120.0),
-        (120.0, 240.0),
-        (210.0, 240.0),
+        (120.0, 235.0),
+        (210.0, 235.0),
         (210.0, 120.0),
         (120.0, 120.0),
         (120.0, 210.0),
-        (0.0,   0.0),
+        (1.0,   1.0),
     ]
     while True:
         for x, y in positions:
@@ -95,9 +95,12 @@ def movement_test() -> None:
 if __name__ == "__main__":
     water_process    = Process(target=wateringlights)
     movement_process = Process(target=movement_test)
+    soil_temp_process = Process(target=soil_temp_sens)
 
     water_process.start()
     movement_process.start()
+    soil_temp_process.start()
 
     water_process.join()
     movement_process.join()
+    soil_temp_process.join()
