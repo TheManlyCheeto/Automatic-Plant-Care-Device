@@ -3,7 +3,7 @@ import time
 # Voltage Divider on the Echo pin.
 # ECHO pin -> 1kohm -> GPIO 24 -> 2kohm -> GND
 
-TRIG_PIN = 26
+TRIG_PIN = 5
 ECHO_PIN = 24
 
 GPIO.setmode(GPIO.BCM)
@@ -20,10 +20,13 @@ def measure_distance() -> float:
     GPIO.output(TRIG_PIN, False)
 
     # Wait for echo to start
-    pulse_start = time.time()
+    timeout = time.time() + 0.04
     while GPIO.input(ECHO_PIN) == 0:
-        #print("wait fore echo to start")
         pulse_start = time.time()
+        if time.time() > timeout:
+            print("Timeout waiting for echo start")
+            GPIO.cleanup()
+            exit()
 
     # Wait for echo to end
     pulse_end = time.time()
