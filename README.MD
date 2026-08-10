@@ -6,7 +6,7 @@
 An autonomous, multi-plant care robot built by repurposing a **CoreXY 3D‑printer motion platform** into a gantry that drives across a 4‑plot grow bed, watering, lighting, imaging, and logging the health of each plant automatically. The whole system runs on **Klipper firmware + Moonraker** on a Raspberry Pi, with a custom sensor array, thermal camera, machine vision plot‑detection, and a purpose‑built LCD dashboard menu.
 
 <p align="center">
-  <img src="https://github.com/TheManlyCheeto/Automatic-Plant-Care-Device/main/Progress_Media/Final_Device.jpg" width="32%" alt="Complete Assembly">
+  <img src="https://raw.githubusercontent.com/TheManlyCheeto/Automatic-Plant-Care-Device/main/Progress_Media/Final_Device.jpg" width="32%" alt="Complete Assembly">
 </p>
 
 <p align="center">
