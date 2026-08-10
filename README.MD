@@ -7,6 +7,8 @@ An autonomous, multi-plant care robot built by repurposing a **CoreXY 3D‑print
 
 <p align="center">
   <img src=https://github.com/TheManlyCheeto/Automatic-Plant-Care-Device/main/Progress_Media/Final_Device.jpg" width="32%" alt="Complete Assembly">
+</p>
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/TheManlyCheeto/Automatic-Plant-Care-Device/main/Progress_Media/CoreXYGantry_Pump_Progress_03.jpg" width="32%" alt="CoreXY gantry and pump assembly">
   <img src="https://raw.githubusercontent.com/TheManlyCheeto/Automatic-Plant-Care-Device/main/Progress_Media/Frame_Construction_Progress_01.jpg" width="32%" alt="Frame construction">
